@@ -25,6 +25,7 @@ type Options struct {
 	Files      FileList
 	IncludeEnv bool
 	Encrypt    bool
+	Print      bool
 }
 
 func main() {
@@ -32,6 +33,7 @@ func main() {
 	flag.BoolVar(&options.Encrypt, "e", false, "create encrypted environment from stdin")
 	flag.Var(&options.Files, "f", "configuration `file`")
 	flag.BoolVar(&options.IncludeEnv, "i", false, "include surrounding environment")
+	flag.BoolVar(&options.Print, "p", false, "print environment variable in a format suitable for eval")
 	flag.Parse()
 
 	var app App
@@ -74,7 +76,7 @@ func (app *App) Run(options Options, args []string) error {
 	}
 
 	// Exit early if no command is provided
-	if len(args) == 0 {
+	if !options.Print && len(args) == 0 {
 		return nil
 	}
 
@@ -89,17 +91,25 @@ func (app *App) Run(options Options, args []string) error {
 		}
 	}
 
-	// Prepare the environment
-	var cmdEnv []string
-	if options.IncludeEnv {
-		cmdEnv = os.Environ() // include the surrounding environment
-	} else {
-		cmdEnv = []string{} // use a non-nil value to force a clean environment
+	if options.Print {
+		for _, e := range env {
+			fmt.Printf("export %s\n", e)
+		}
 	}
-	cmdEnv = append(cmdEnv, env...)
 
-	// Run the command
-	app.exec(args[0], args[1:], cmdEnv)
+	if len(args) > 0 {
+		// Prepare the environment
+		var cmdEnv []string
+		if options.IncludeEnv {
+			cmdEnv = os.Environ() // include the surrounding environment
+		} else {
+			cmdEnv = []string{} // use a non-nil value to force a clean environment
+		}
+		cmdEnv = append(cmdEnv, env...)
+
+		// Run the command
+		app.exec(args[0], args[1:], cmdEnv)
+	}
 
 	return nil
 }

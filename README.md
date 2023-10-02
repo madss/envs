@@ -63,6 +63,13 @@ If you need to include environment variables from the surrounding environment
 envs -i -f myenv.txt env
 ```
 
+To export environment variables, you can use the `-p` flag to print the
+variables in a format suitable to `eval`.
+
+```
+eval $(envs -p -f myenv.txt)
+```
+
 ### Encrypting sensitive information
 
 `envs` can create encrypted environment files, for storing sensitive
