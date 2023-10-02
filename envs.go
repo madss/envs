@@ -18,8 +18,12 @@ import (
 	"golang.org/x/term"
 )
 
-// The magic number used to identify encrypted files
-const magic = "\x00env"
+const (
+	// The magic number used to identify encrypted files
+	magic = "\x00env"
+	// The environment variable containing the password for encrypting and decrypting
+	passwordEnvName = "ENVS_PASSWORD"
+)
 
 type Options struct {
 	Files      FileList
@@ -115,6 +119,9 @@ func (app *App) Run(options Options, args []string) error {
 }
 
 func (app *App) readPassword(prompt string, args ...any) ([]byte, error) {
+	if password, ok := os.LookupEnv(passwordEnvName); ok {
+		return []byte(password), nil
+	}
 	fmt.Printf(prompt, args...)
 	password, err := term.ReadPassword(int(os.Stdin.Fd()))
 	fmt.Println()

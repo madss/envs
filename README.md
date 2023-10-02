@@ -85,3 +85,7 @@ envs -e -f mysecrets.bin
 Injecting environment variables from encrypted files, works the same way as with
 regular files, except that the user will be prompted for a password for each
 encrypted file.
+
+To avoid having to enter the password all the time, it can be provided by the
+environment variable `ENVS_PASSWORD` (but be careful not to leak it in your
+shells history).
